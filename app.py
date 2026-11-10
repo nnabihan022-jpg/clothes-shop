@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import datetime
 
 # Konfigurasi halaman
@@ -8,7 +9,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Styling CSS agar mirip tampilan e-commerce modern & struk cetak
+# Styling CSS utama aplikasi
 st.markdown("""
 <style>
     .main-header {
@@ -41,17 +42,6 @@ st.markdown("""
         font-size: 16px;
         margin-bottom: 10px;
     }
-    /* Struk gaya printer kasir */
-    .receipt-box {
-        max-width: 400px;
-        margin: 0 auto;
-        background: #ffffff;
-        padding: 25px;
-        font-family: 'Courier New', Courier, monospace;
-        color: #000;
-        border-top: 5px solid #03ac0e;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -81,26 +71,12 @@ if st.session_state.receipt_data:
     r = st.session_state.receipt_data
     st.success("Transaksi Berhasil! Berikut Struk Pembayaran Anda:")
     
-    # Tampilan Struk Persis Referensi
-    receipt_html = f"""
-    <div class="receipt-box">
-        <div style="text-align: center;">
-            <h3 style="margin:0; font-family: Arial;">CLOTHES SHOP</h3>
-            <p style="font-size: 11px; margin: 2px 0;"><strong>MINIMARKET PAKAIAN & FASHION</strong></p>
-            <p style="font-size: 11px; margin: 2px 0;">Jl. Rorojonggrang Raya B1 No.13 - Cimahi</p>
-        </div>
-        <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-        <div style="display: flex; justify-content: space-between; font-size: 11px;">
-            <span>No. Struk : {r['no_struk']}</span>
-            <span>{r['waktu']}</span>
-        </div>
-        <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-    """
-    
+    # Render item struk secara dinamis ke dalam HTML
+    items_html = ""
     for item in r['items']:
         sub_total_str = f"Rp. {item['subtotal']:,.0f}".replace(",", ".")
         price_str = f"{item['price']:,.0f}".replace(",", ".")
-        receipt_html += f"""
+        items_html += f"""
         <div style="margin: 8px 0; font-size: 12px;">
             <div>{item['name']}</div>
             <div style="display: flex; justify-content: space-between;">
@@ -114,7 +90,21 @@ if st.session_state.receipt_data:
     bayar_str = f"Rp. {r['bayar']:,.0f}".replace(",", ".")
     kembali_str = f"Rp. {r['kembali']:,.0f}".replace(",", ".")
     
-    receipt_html += f"""
+    # Template HTML Struk Utuh
+    receipt_html = f"""
+    <div style="max-width: 400px; margin: 0 auto; background: #ffffff; padding: 25px; font-family: 'Courier New', Courier, monospace; color: #000; border-top: 5px solid #03ac0e; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="text-align: center;">
+            <h3 style="margin:0; font-family: Arial;">CLOTHES SHOP</h3>
+            <p style="font-size: 11px; margin: 2px 0;"><strong>MINIMARKET PAKAIAN & FASHION</strong></p>
+            <p style="font-size: 11px; margin: 2px 0;">Jl. Rorojonggrang Raya B1 No.13 - Cimahi</p>
+        </div>
+        <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+            <span>No. Struk : {r['no_struk']}</span>
+            <span>{r['waktu']}</span>
+        </div>
+        <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
+        {items_html}
         <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
         <div style="font-size: 13px;">
             <div style="display: flex; justify-content: space-between; font-weight: bold;"><span>Subtotal</span> <span>{sub_str}</span></div>
@@ -129,8 +119,8 @@ if st.session_state.receipt_data:
     </div>
     """
     
-    # Render HTML dengan benar menggunakan unsafe_allow_html=True
-    st.markdown(receipt_html, unsafe_allow_html=True)
+    # Menampilkan struk menggunakan komponen HTML Streamlit agar 100% rapi tanpa teks tag bocor
+    components.html(receipt_html, height=450, scrolling=True)
     
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
