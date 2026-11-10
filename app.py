@@ -128,6 +128,8 @@ if st.session_state.receipt_data:
         </div>
     </div>
     """
+    
+    # Render HTML dengan benar menggunakan unsafe_allow_html=True
     st.markdown(receipt_html, unsafe_allow_html=True)
     
     col_btn1, col_btn2 = st.columns(2)
@@ -159,7 +161,7 @@ else:
                     <div style="font-size:11px; color:#757575; margin-bottom:8px;">Terjual {p['sold']}</div>
                 </div>
                 """, unsafe_allow_html=True)
-                if st.button(f"+ Keranjang##{p['id']}", key=f"add_{p['id']}"):
+                if st.button(f"+ Keranjang", key=f"add_{p['id']}"):
                     st.session_state.cart[p['id']] = st.session_state.cart.get(p['id'], 0) + 1
                     st.rerun()
 
